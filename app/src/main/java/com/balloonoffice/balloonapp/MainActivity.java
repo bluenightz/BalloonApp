@@ -28,6 +28,7 @@ import android.app.Fragment;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.NameValuePair;
@@ -49,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
     private PostTask<User> postTask;
     private Menu _menu;
     private ProgressBar progressBar;
+    // private ArrayList<Csv_item_model> csv_list;
 
 
     private final String LOGTAG = "AndroidFileBrowser";
@@ -536,7 +538,15 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
                         "Received FILE path from file browser:\n"+newFile,
                         Toast.LENGTH_LONG).show();
 
-                String str_in_file = Utilities.ReadFile( newFile );
+                // csv_list = Utilities.ReadCSVFile(newFile);
+
+
+                closeFragment();
+                Intent intent = new Intent(this, ProductList.class);
+                intent.putExtra( "isMac5", true );
+                intent.putExtra( "csvPath", newFile );
+                startActivity(intent);
+
 
 
             } else {//if(resultCode == this.RESULT_OK) {

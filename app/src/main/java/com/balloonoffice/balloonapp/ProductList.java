@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -43,6 +44,7 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
     private Activity c = this;
     private AlertDialog dialog;
     public static final int REQ_INNER_SCANNER = 50;
+    private ArrayList<Csv_item_model> csv_list;
 
     @Override
     public <T> void onJSONComplete(T object) {
@@ -54,13 +56,21 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
-        String stringUrl = APPCONFIG.PRODUCTLIST_JSON+"?branch_id="+UserInfo.branch_id;
-        if ( Utilities.CHECK_INTERNET_CONN(c) ) {
-            new DownloadWebpageTask().execute(stringUrl);
-        } else {
-            Utilities.ToastAlert(c, ToastAlert.TYPE_INTERNET_CHECK);
-        }
+        Boolean isMac5 = this.getIntent().getBooleanExtra("isMac5", false);
+        String csvPath = this.getIntent().getStringExtra("csvPath");
 
+
+        if( isMac5 ){
+            csv_list = Utilities.ReadCSVFile( csvPath );
+        }else {
+
+            String stringUrl = APPCONFIG.PRODUCTLIST_JSON + "?branch_id=" + UserInfo.branch_id;
+            if (Utilities.CHECK_INTERNET_CONN(c)) {
+                new DownloadWebpageTask().execute(stringUrl);
+            } else {
+                Utilities.ToastAlert(c, ToastAlert.TYPE_INTERNET_CHECK);
+            }
+        }
 
         createAlertDialog();
 

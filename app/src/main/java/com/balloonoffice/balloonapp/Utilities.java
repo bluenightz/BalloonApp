@@ -15,7 +15,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.Gson;
+import com.opencsv.CSVReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,6 +30,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -90,6 +94,91 @@ public class Utilities {
 
         Toast.makeText(C, str, Toast.LENGTH_SHORT ).show();
     }
+
+
+    public static ArrayList<Csv_item_model> ReadCSVFile( String path ){
+        //Find the directory for the SD Card using the API
+        //*Don't* hardcode "/sdcard"
+
+        ArrayList<Csv_item_model> Csv_list = new ArrayList<Csv_item_model>();
+        Boolean keepData = false;
+
+        String[] a = path.split("/");
+        String dir = "";
+        String filename = "";
+        for( int i = 0 ; i < a.length  ; ++i ){
+            if( i == a.length - 1 ) {
+                filename = a[i];
+                break;
+            }
+            dir += a[i];
+            dir += "/";
+        }
+
+        // File sdcard = Environment.getExternalStorageDirectory();
+        File sdcard = new File(dir);
+
+        //Get the text file
+        File file = new File(sdcard, filename);
+
+        //Read text from file
+        //StringBuilder text = new StringBuilder();
+
+        String text = "";
+
+        CSVReader reader = null;
+        try {
+            reader = new CSVReader(new FileReader( file ));
+            String [] nextLine;
+            try {
+                while ((nextLine = reader.readNext()) != null) {
+                    // nextLine[] is an array of values from the line
+                    System.out.println(nextLine[0] + nextLine[1] + "etc...");
+                    if( keepData ){
+                        Csv_item_model csv_item_model = new Csv_item_model();
+
+                        csv_item_model.setStoreCode(nextLine[1]);
+                        csv_item_model.setProductCode(nextLine[2]);
+                        csv_item_model.setStockBefore(nextLine[7]);
+                        csv_item_model.setStockIn(nextLine[10]);
+                        csv_item_model.setStockOut( nextLine[13] );
+                        csv_item_model.setStockAfter(nextLine[16]);
+
+                        Csv_list.add( csv_item_model );
+                    }
+                    if( nextLine[0].toString().equalsIgnoreCase("no") ){
+                        //
+                        keepData = true;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            //You'll need to add proper error handling here
+            Log.e("ReadFile", e.getMessage());
+        }
+        */
+
+
+        return Csv_list;
+    }
+
 
     public static String ReadFile( String path ){
         //Find the directory for the SD Card using the API
