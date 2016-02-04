@@ -50,6 +50,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.balloonoffice.balloonapp.MainActivity" />
         </activity>
+
+        <!-- This is necessary for file browser -->
+        <activity
+            android:name="ua.com.vassiliev.androidfilebrowser.FileBrowserActivity"
+            android:label="File browser"
+            android:configChanges="orientation|keyboardHidden">
+            <intent-filter>
+                <action android:name="ua.com.vassiliev.androidfilebrowser.SELECT_DIRECTORY_ACTION"></action>
+            </intent-filter>
+
+        </activity>
+        <!-- End of file browser necessity -->
+
+
+
         <!--
         <activity
             android:name=".Scanbarcode"

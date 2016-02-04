@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -28,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -87,6 +89,51 @@ public class Utilities {
 
 
         Toast.makeText(C, str, Toast.LENGTH_SHORT ).show();
+    }
+
+    public static String ReadFile( String path ){
+        //Find the directory for the SD Card using the API
+        //*Don't* hardcode "/sdcard"
+
+                String[] a = path.split("/");
+                String dir = "";
+                String filename = "";
+                for( int i = 0 ; i < a.length  ; ++i ){
+                    if( i == a.length - 1 ) {
+                        filename = a[i];
+                        break;
+                    }
+                    dir += a[i];
+                    dir += "/";
+                }
+
+                // File sdcard = Environment.getExternalStorageDirectory();
+                File sdcard = new File(dir);
+
+        //Get the text file
+                File file = new File(sdcard, filename);
+
+        //Read text from file
+                StringBuilder text = new StringBuilder();
+
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        text.append(line);
+                        text.append('\n');
+                    }
+                    br.close();
+                }
+                catch (IOException e) {
+                    //You'll need to add proper error handling here
+                    Log.e("ReadFile", e.getMessage());
+                }
+
+
+
+        return text.toString();
     }
 
     public static <Code> void saveCountlist(Activity c, Code obj){

@@ -16,6 +16,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +26,7 @@ import android.widget.ProgressBar;
 
 import android.app.Fragment;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -37,6 +39,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MainActivity extends ActionBarActivity implements LoginDialog.LoginDialogInterface, PostTask.PostTaskInterface {
     private Activity c = this;
     private int framelayout;
@@ -46,6 +49,12 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
     private PostTask<User> postTask;
     private Menu _menu;
     private ProgressBar progressBar;
+
+
+    private final String LOGTAG = "AndroidFileBrowser";
+
+    private final int REQUEST_CODE_PICK_DIR = 1;
+    private final int REQUEST_CODE_PICK_FILE = 2;
 
 
     @Override
@@ -175,6 +184,30 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
 
         setContentView(R.layout.activity_main);
         // setTitle("");
+
+
+        final Activity activityForButton = this;
+
+        final Button startBrowser4FileButton = (Button) findViewById(R.id.btn_load_from_mac5);
+        startBrowser4FileButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d(LOGTAG, "StartFileBrowser4File pressed");
+                Intent fileExploreIntent = new Intent(
+                        ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.INTENT_ACTION_SELECT_FILE,
+                        null,
+                        activityForButton,
+                        ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.class
+                );
+//        		fileExploreIntent.putExtra(
+//        				ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.startDirectoryParameter,
+//        				"/sdcard"
+//        				);
+                startActivityForResult(
+                        fileExploreIntent,
+                        REQUEST_CODE_PICK_FILE
+                );
+            }//public void onClick(View v) {
+        });
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar_update);
 
@@ -475,4 +508,47 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
         startActivity(i);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_DIR) {
+            if(resultCode == RESULT_OK) {
+                String newDir = data.getStringExtra(
+                        ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.returnDirectoryParameter);
+                Toast.makeText(
+                        this,
+                        "Received DIRECTORY path from file browser:\n" + newDir,
+                        Toast.LENGTH_LONG).show();
+
+            } else {//if(resultCode == this.RESULT_OK) {
+                Toast.makeText(
+                        this,
+                        "Received NO result from file browser",
+                        Toast.LENGTH_LONG).show();
+            }//END } else {//if(resultCode == this.RESULT_OK) {
+        }//if (requestCode == REQUEST_CODE_PICK_DIR) {
+
+        if (requestCode == REQUEST_CODE_PICK_FILE) {
+            if(resultCode == RESULT_OK) {
+                String newFile = data.getStringExtra(
+                        ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.returnFileParameter);
+                Toast.makeText(
+                        this,
+                        "Received FILE path from file browser:\n"+newFile,
+                        Toast.LENGTH_LONG).show();
+
+                String str_in_file = Utilities.ReadFile( newFile );
+
+
+            } else {//if(resultCode == this.RESULT_OK) {
+                Toast.makeText(
+                        this,
+                        "Received NO result from file browser",
+                        Toast.LENGTH_LONG).show();
+            }//END } else {//if(resultCode == this.RESULT_OK) {
+        }//if (requestCode == REQUEST_CODE_PICK_FILE) {
+
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
 }

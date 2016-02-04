@@ -85,5 +85,5 @@
     <string name="downloading">BalloonArt</string>
     <string name="downloading_desc">กำลังทำการดาวน์โหลดเวอร์ชั่นใหม่...</string>
 
-    <string name="load_from_mac5">Load Mac5...</string>
+    <string name="load_from_mac5">Load Mac5 File...</string>
 </resources>
