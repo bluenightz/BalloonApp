@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">BalloonArt</string>
+    <string name="update_info">ขณะนี้โปรแกรมมีเวอร์ชั่นใหม่ กรุณาอัพเดทโปรแกรมก่อนใช้งาน</string>
+    <string name="update_already">ขณะนี้โปรแกรมที่ติดตั้งเป็นเวอร์ชั่นล่าสุดแล้ว</string>
+    <string name="action_settings">Settings</string>
+    <string name="login">Log in</string>
+    <string name="logout">Log out</string>
+    <string name="update">Update App</string>ตกลง
+    <string name="updateDataComplete">อัพเดทข้อมูลเรียบร้อย</string>
+    <string name="btn_sendData"> ส่งข้อมูล</string>
+    <string name="type_data_complete">ข้อมูลถูกส่งเรียบร้อย</string>
+
+    <string name="text_stock">คงเหลือ</string>
+    <string name="text_count">นับจริง</string>
+
+    <string name="sendData_title">ส่งข้อมูล</string>
+    <string name="sendData_desc">ยืนยันการส่งข้อมูลสินค้าเปลี่ยนแปลงประจำวันไปยังServer</string>
+    <string name="quicksearch">รหัสที่ต้องการค้นหา</string>
+
+    <string name="menutext_1">Scan Barcode</string>
+    <string name="menutext_2">Update App</string>
+    <string name="menutext_product_category">Products</string>
+    <string name="menutext_login">Log in</string>
+    <string name="title_activity_sync_page">Sync before scan?</string>
+    <string name="p_syncpage">ดาวน์โหลดรายการสินค้าที่มีการเปลี่ยนแปลง เพื่อทำการเช็คสินค้าคงเหลือโดยการแสกนบาร์โค้ดหรือไม่?</string>
+    <string name="intro_product_list">ของวันที่</string>
+    <string name="login_before_use">ทำการล็อคอินก่อนใช้งาน</string>
+
+
+    <string name="intro_changedlist">เลือกรายการสินค้าเพื่อทำการสแกนและตรวจสอบการเปลี่ยนแปลง</string>
+
+    <string name="btn_syncpage1">ดูรายการสินค้าที่มีการเปลี่ยนแปลง</string>
+    <string name="btn_syncpage2">ดูรายละเอียดสินค้าอื่นๆ</string>
+    <string name="btn_syncpage3">เช็คสินค้าแบบอัตโนมัติ</string>
+    <string name="AlertDialogTitle_Number_not_Match">จำนวนที่นับไม่ตรงกัน</string>
+    <string name="AlertDialogTitle_Number_not_Match_desc">ยืนยันที่จะใช้จำนวนนี้หรือไม่</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_product_list">รายการสินค้าเปลี่ยนแปลง</string>
+    <string name="title_activity_scanbarcode">Scan Barcode</string>
+    <string name="title_activity_input_data">Input Data</string>
+
+    <string name="text_scan">Scan</string>
+    <string name="text_scan_other">Scanเพื่อดูสินค้าตัวอื่น</string>
+    <string name="text_submit">อัพเดทจำนวนคงเหลือ</string>
+    <string name="text_instock">จำนวนคงเหลือ</string>
+    <string name="text_price">ราคา</string>
+    <string name="login_error_user_not_match">username หรือ password ไม่ถูกต้อง</string>
+
+
+    <string name="login_title">ลงชื่อก่อนเข้าใช้งาน</string>
+    <string name="signin">เข้าสู่ระบบ</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="confirm">ยืนยัน</string>
+    <string name="login_title_en">Log in</string>
+    <string name="logout_title_en">Log out</string>
+
+    <string name="reloadlist">ดาวน์โหลดข้อมลูอีกครั้ง</string>
+    <string name="productlist_notload">การดึงข้อมูลจากServerล้มเหลวกรุณดาวน์โหลดข้อมูลใหม่</string>
+    <string name="json_error">รูปแบบข้อมูลผิดพลาด กรุณาติดต่อProgramer</string>
+
+    <!-- InputData -->
+    <string name="text_inputdata_code">รหัสสินค้า</string>
+    <string name="text_inputdata_title">ชื่อสินค้า</string>
+
+
+    <string name="dialog_code_notmatch_head">รหัสไม่ตรงกัน</string>
+    <string name="dialog_code_notmatch">เลือกรหัสสินค้าแล้วแสกนใหม่อีกครั้ง</string>
+    <string name="text_scan_again">ตกลง</string>
+    <string name="text_btn_search">ดูรายละเอียดสินค้า</string>
+    <string name="hint_search">รหัสสินค้า</string>
+    <string name="toast_error">เกิดข้อผิดพลาด</string>
+    <!--<string name="search_title">ค้นหาสินค้า</string>-->
+    <!--<string name="search_message">ใช้คำค้นเป็น</string>-->
+
+    <string name="login_success">ยินดีต้อนรับเข้าสู่ระบบ</string>
+    <string name="login_fail">ชื่อผู้เข้าใช้หรือรหัสไม่ถูกต้อง</string>
+    <string name="natural_button_label">ตกลง</string>
+
+
+    <string name="checkNetwork">ตรวจสอบอินเตอร์เน็ตว่าเชื่อมต่อถูกต้องหรือไม่</string>
+    <string name="title_activity_view_product_detail">View Product Detail</string>
+    <string name="title_activity_product_category">Product Category</string>
+
+    <string name="downloading">BalloonArt</string>
+    <string name="downloading_desc">กำลังทำการดาวน์โหลดเวอร์ชั่นใหม่...</string>
+
+    <string name="load_from_mac5">Load Mac5...</string>
+</resources>

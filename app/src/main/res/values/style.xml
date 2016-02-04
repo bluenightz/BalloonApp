@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="android:actionBarStyle">@style/AppTheme_ActionBar</item>
+        <item name="actionBarStyle">@style/AppTheme_ActionBar</item>
+
+        <item name="android:actionOverflowButtonStyle">@style/AppTheme_Overflow_Button</item>
+        <item name="actionOverflowButtonStyle">@style/AppTheme_Overflow_Button</item>
+
+        <item name="android:editTextPreferenceStyle">@style/AppTheme_Preference_EditText</item>
+
+
+        <!--
+        <item name="android:background">@color/Dark_blue</item>
+        <item name="background">@color/Dark_blue</item>
+        -->
+
+
+    </style>
+
+    <style name="AppTheme_Button_Horizon" parent="Base.Widget.AppCompat.Button">
+
+    </style>
+
+
+    <style name="AppTheme_Overflow_Button" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:textColor">@color/White</item>
+    </style>
+
+    <style name="AppTheme_Preference_EditText" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:textColor">@drawable/edit_text_selector</item>
+    </style>
+
+    <style name="AppTheme_ActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/Bg_blue</item>
+        <item name="background">@color/Bg_blue</item>
+
+        <item name="android:titleTextStyle">@style/AppTheme_ActionBar_Title</item>
+        <item name="titleTextStyle">@style/AppTheme_ActionBar_Title</item>
+
+
+    </style>
+
+    <style name="AppTheme_ActionBar_Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/White</item>
+    </style>
+
+</resources>

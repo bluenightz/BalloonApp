@@ -1,0 +1,77 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Bg_blue"
+    tools:context="com.balloonoffice.balloonapp.ProductList">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/intro_product_list"
+            android:id="@+id/productlist_intro" />
+
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:id="@+id/product_LV" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_autoscan"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/btn_syncpage3"
+                    android:layout_height="wrap_content"
+                    android:onClick="callbarcode"/>
+
+                <Button
+                    android:id="@+id/btn_viewproduct"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/btn_syncpage2"
+                    android:layout_height="wrap_content"
+                    android:onClick="callbarcode"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar_product"
+        android:layout_alignParentBottom="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reloadlist"
+        android:layout_gravity="center"
+        android:onClick="reloadlist"
+        android:id="@+id/btn_reload"
+        android:visibility="gone" />
+
+
+</FrameLayout>
