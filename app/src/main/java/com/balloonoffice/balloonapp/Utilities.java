@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.balloonoffice.balloonapp.Model.CodeObj;
 import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.Gson;
 import com.opencsv.CSVReader;
@@ -46,6 +47,8 @@ import java.util.List;
  * Created by bluenightz on 6/9/15 AD.
  */
 public class Utilities {
+
+    public static CodeObj<CodeObj.Code> CodeObj;
 
     public static boolean CHECK_INTERNET_CONN(Context C){
         ConnectivityManager connMgr = (ConnectivityManager) C.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -96,11 +99,13 @@ public class Utilities {
     }
 
 
-    public static ArrayList<Csv_item_model> ReadCSVFile( String path ){
+    public static ArrayList<CodeObj.Code> ReadCSVFile( String path ){
         //Find the directory for the SD Card using the API
         //*Don't* hardcode "/sdcard"
 
-        ArrayList<Csv_item_model> Csv_list = new ArrayList<Csv_item_model>();
+        ArrayList<CodeObj.Code> Csv_list = new ArrayList<CodeObj.Code>();
+        CodeObj<CodeObj.Code> CodeObj = new CodeObj<CodeObj.Code>();
+
         Boolean keepData = false;
 
         String[] a = path.split("/");
@@ -125,6 +130,7 @@ public class Utilities {
         //StringBuilder text = new StringBuilder();
 
         String text = "";
+        int i = 0;
 
         CSVReader reader = null;
         try {
@@ -135,22 +141,68 @@ public class Utilities {
                     // nextLine[] is an array of values from the line
                     System.out.println(nextLine[0] + nextLine[1] + "etc...");
                     if( keepData ){
-                        Csv_item_model csv_item_model = new Csv_item_model();
+//                        Csv_item_model csv_item_model = new Csv_item_model();
+//
+//                        csv_item_model.setStoreCode(nextLine[1]);
+//                        csv_item_model.setProductCode(nextLine[2]);
+//                        csv_item_model.setStockBefore(nextLine[7]);
+//                        csv_item_model.setStockIn(nextLine[10]);
+//                        csv_item_model.setStockOut( nextLine[13] );
+//                        csv_item_model.setStockAfter(nextLine[16]);
 
-                        csv_item_model.setStoreCode(nextLine[1]);
-                        csv_item_model.setProductCode(nextLine[2]);
-                        csv_item_model.setStockBefore(nextLine[7]);
-                        csv_item_model.setStockIn(nextLine[10]);
-                        csv_item_model.setStockOut( nextLine[13] );
-                        csv_item_model.setStockAfter(nextLine[16]);
+//                        Csv_list.add( csv_item_model );
+
+                        CodeObj.Code csv_item_model = new CodeObj().new Code();
+                        csv_item_model.code = nextLine[2];
+                        csv_item_model.quantity = nextLine[16];
+                        csv_item_model.src = "http://dev.balloonoffice.com/images/Materials/1419490398.gif";
+                        csv_item_model.title = "30F Multi-Panel Heart";
+
+                        CodeObj.Time time = new CodeObj().new Time();
+                        time.date = "07/02/2016";
+                        time.time = "12:06";
+                        time.quantity = "-1";
+
+                        csv_item_model.checkschedule = new CodeObj.Time[1];
+                        csv_item_model.checkschedule[0] = time;
 
                         Csv_list.add( csv_item_model );
+
+
+
+                        ++i;
                     }
                     if( nextLine[0].toString().equalsIgnoreCase("no") ){
                         //
                         keepData = true;
                     }
                 }
+
+                CodeObj codeObj = new CodeObj();
+                codeObj.codes = new CodeObj.Code[Csv_list.size()];
+
+                for(int z = 0 ; z < Csv_list.size(); ++z){
+                    CodeObj.Code c = new CodeObj().new Code();
+                    c.code = Csv_list.get(z).code;
+                    c.quantity = Csv_list.get(z).quantity;
+                    c.src = "http://dev.balloonoffice.com/images/Materials/1419490398.gif";
+                    c.title = "30F Multi-Panel Heart";
+
+                    CodeObj.Time time = new CodeObj().new Time();
+                    time.date = "07/02/2016";
+                    time.time = "12:06";
+                    time.quantity = "-1";
+
+                    codeObj.codes[z] = c;
+
+                    c.checkschedule = new CodeObj.Time[1];
+                    c.checkschedule[0] = time;
+                }
+
+                Utilities.CodeObj = codeObj;
+                codeObj.addtofirst();
+                Csv_list.get(0).code = "8858667045108";
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

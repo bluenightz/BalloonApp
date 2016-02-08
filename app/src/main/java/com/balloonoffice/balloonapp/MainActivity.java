@@ -489,6 +489,7 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
     public void gotoPage(View view) {
 
         if( UserInfo.success ){
+            SCANMODE.useMac5 = false;
             closeFragment();
             Intent intent = new Intent(this, ProductList.class);
             startActivity(intent);
@@ -541,10 +542,11 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
                 // csv_list = Utilities.ReadCSVFile(newFile);
 
 
+                SCANMODE.useMac5 = true;
+                SCANMODE.csvPath = newFile;
                 closeFragment();
                 Intent intent = new Intent(this, ProductList.class);
-                intent.putExtra( "isMac5", true );
-                intent.putExtra( "csvPath", newFile );
+//                intent.putExtra("csvPath", newFile);
                 startActivity(intent);
 
 

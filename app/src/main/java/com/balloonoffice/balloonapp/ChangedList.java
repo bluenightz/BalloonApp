@@ -1,5 +1,7 @@
 package com.balloonoffice.balloonapp;
 
+import com.balloonoffice.balloonapp.Model.CodeObj;
+
 import java.util.ArrayList;
 
 /**
@@ -7,7 +9,7 @@ import java.util.ArrayList;
  */
 public class ChangedList {
 //    public static ArrayList<ProductList.CodeObj.Code> products = null;
-    public static ProductList.CodeObj codeObj = null;
+    public static CodeObj codeObj = null;
 
 
     public static Object check( String code ){
@@ -35,7 +37,7 @@ public class ChangedList {
         if( codeObj != null ){
             int max = codeObj.codes.length;
             for(int i = 0 ; i < max ; ++i){
-                ProductList.CodeObj.Code _code = (ProductList.CodeObj.Code) codeObj.codes[i];
+                CodeObj.Code _code = (CodeObj.Code) codeObj.codes[i];
                 if( _code.code.equals( code ) ){
                     r.codeobj = _code;
                     r.b = true;
@@ -50,7 +52,7 @@ public class ChangedList {
     }
 
     public static class Result{
-        public ProductList.CodeObj.Code codeobj = null;
+        public CodeObj.Code codeobj = null;
         public boolean b;
     }
 

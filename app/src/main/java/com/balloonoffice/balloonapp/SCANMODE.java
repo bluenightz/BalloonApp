@@ -8,5 +8,8 @@ public class SCANMODE {
     public static int SCANMODE_AUTO = 2;
     public static int SCANMODE_VIEW = 3;
 
+    public static boolean useMac5;
+    public static String csvPath;
+
     public static int TYPE ;
 }

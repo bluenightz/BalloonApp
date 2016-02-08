@@ -23,6 +23,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.balloonoffice.balloonapp.Adapter.Csv_Adapter;
+import com.balloonoffice.balloonapp.Model.*;
 import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -40,11 +42,14 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.balloonoffice.balloonapp.R.*;
+
 public class ProductList extends ActionBarActivity implements PostTask.PostTaskInterface {
     private Activity c = this;
     private AlertDialog dialog;
     public static final int REQ_INNER_SCANNER = 50;
-    private ArrayList<Csv_item_model> csv_list;
+    private ArrayList<CodeObj.Code> csv_list;
+    private ProgressBar progressBar_product;
 
     @Override
     public <T> void onJSONComplete(T object) {
@@ -54,14 +59,26 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_product_list);
+        setContentView(layout.activity_product_list);
 
-        Boolean isMac5 = this.getIntent().getBooleanExtra("isMac5", false);
-        String csvPath = this.getIntent().getStringExtra("csvPath");
+        boolean isMac5 = SCANMODE.useMac5;
+        String csvPath = SCANMODE.csvPath;
+
+        progressBar_product = (ProgressBar) findViewById(id.progressBar_product);
 
 
         if( isMac5 ){
             csv_list = Utilities.ReadCSVFile( csvPath );
+
+
+            setAdapterToView(csv_list, Utilities.CodeObj);
+
+//            ListView LV = (ListView) findViewById(id.product_LV);
+//            CustomArrayAdapter csv_adapter = new CustomArrayAdapter(c, layout.eachproduct, csv_list);
+//            LV.setAdapter( csv_adapter );
+
+            progressBar_product.setVisibility(View.GONE);
+
         }else {
 
             String stringUrl = APPCONFIG.PRODUCTLIST_JSON + "?branch_id=" + UserInfo.branch_id;
@@ -78,9 +95,9 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
     private void createAlertDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder( c );
-        builder.setMessage(R.string.dialog_code_notmatch)
-                .setTitle(R.string.dialog_code_notmatch_head)
-                .setNeutralButton(R.string.text_scan_again, new DialogInterface.OnClickListener() {
+        builder.setMessage(string.dialog_code_notmatch)
+                .setTitle(string.dialog_code_notmatch_head)
+                .setNeutralButton(string.text_scan_again, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -139,9 +156,9 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
         MenuItem menuItem = menu.add(Menu.NONE,
                 99,
                 1,
-                R.string.btn_sendData);
+                string.btn_sendData);
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menuItem.setIcon(R.drawable.ic_check_circle_white_24dp);
+        menuItem.setIcon(drawable.ic_check_circle_white_24dp);
 
         super.onCreateOptionsMenu(menu);
         return true;
@@ -160,9 +177,9 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
             return true;
         }else if(id == 99){
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(c);
-            alertDialog.setTitle(R.string.sendData_title)
-                    .setMessage(R.string.sendData_desc)
-                    .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            alertDialog.setTitle(string.sendData_title)
+                    .setMessage(string.sendData_desc)
+                    .setPositiveButton(string.confirm, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if(Utilities.CHECK_INTERNET_CONN(c))
@@ -186,7 +203,7 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
                         }
                     })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
@@ -246,13 +263,13 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
             if( convertView == null ){
                 layoutinflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = layoutinflater.inflate(R.layout.eachproduct, null);
+                convertView = layoutinflater.inflate(layout.eachproduct, null);
                 holder = new Viewholder();
-                holder.tcode = (TextView) convertView.findViewById(R.id.text_code);
-                holder.imgview = (ImageView) convertView.findViewById(R.id.each_img);
-                holder.history = (TextView) convertView.findViewById(R.id.updatehistory);
-                holder.tcount = (TextView) convertView.findViewById(R.id.number_count);
-                holder.tstock = (TextView) convertView.findViewById(R.id.number_stock);
+                holder.tcode = (TextView) convertView.findViewById(id.text_code);
+                holder.imgview = (ImageView) convertView.findViewById(id.each_img);
+                holder.history = (TextView) convertView.findViewById(id.updatehistory);
+                holder.tcount = (TextView) convertView.findViewById(id.number_count);
+                holder.tstock = (TextView) convertView.findViewById(id.number_stock);
 
                 convertView.setTag(holder);
             }else{
@@ -274,9 +291,9 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
                 holder.tstock.setText(code.quantity);
 
                 if( lastestTime.isCorrect ){
-                    holder.history.setTextColor(getResources().getColor(R.color.Green));
+                    holder.history.setTextColor(getResources().getColor(color.Green));
                 }else{
-                    holder.history.setTextColor(getResources().getColor(R.color.Red));
+                    holder.history.setTextColor(getResources().getColor(color.Red));
                 }
 //                holder.history.setText(lastestTime.time + " " + lastestTime.date + " : คงเหลือ " + lastestTime.quantity + " ชิ้น");
             }catch(ArrayIndexOutOfBoundsException e){
@@ -319,8 +336,8 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
 
 
-            ProgressBar progressBar_product = (ProgressBar) findViewById(R.id.progressBar_product);
-            Button btn_reload = (Button) findViewById(R.id.btn_reload);
+            progressBar_product = (ProgressBar) findViewById(id.progressBar_product);
+            Button btn_reload = (Button) findViewById(id.btn_reload);
             String str = "{\"codes\":" + s.trim() + "}";
             str = str.replaceAll("(\r\n|\n)", "");
 
@@ -368,49 +385,57 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
                 }
 
 
-                final ArrayList<CodeObj.Code> codelist2 = codelist;
-
-
-//                ChangedList.products = codelist;
-                ChangedList.codeObj = code_json_object;
-
-                CustomArrayAdapter cAdapter = new CustomArrayAdapter(getApplicationContext(), R.layout.eachproduct, codelist2);
-
-
-                ListView listview = (ListView) findViewById(R.id.product_LV);
-                listview.setAdapter(cAdapter);
-
-
-                TextView textview = (TextView) findViewById(R.id.productlist_intro);
-                String str2 = String.format("ของวันที่ %s | ทั้งหมด %s รายการ", codelist.get(0).checkschedule[0].date, codelist2.size());
-                textview.setText( str2 );
-//                textview.setText( getResources().getString( R.string.intro_product_list ) + " " + codelist.get(0).checkschedule[0].date + " เวลา " + codelist.get(0).checkschedule[0].time );
-
-                listview.setOnItemClickListener(
-                        new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                SCANMODE.TYPE = SCANMODE.SCANMODE_LIST;
-                                ActiveProduct.setValue(codelist2.get(position));
-
-                                Intent intent = new Intent(c, CaptureActivity.class);
-                                startActivityForResult(intent, REQ_INNER_SCANNER);
-
-//                                IntentIntegrator integrator = new IntentIntegrator(c);
-//                                integrator.initiateScan();
-                            }
-                        }
-                );
-
-                progressBar_product.setVisibility(View.GONE);
+                setAdapterToView(codelist, code_json_object);
             }
 
         }
 
     }
 
+
+
+
+    public void setAdapterToView( ArrayList<CodeObj.Code> codelist, CodeObj<CodeObj.Code> code_json_object){
+        final ArrayList<CodeObj.Code> codelist2 = codelist;
+
+
+//                ChangedList.products = codelist;
+        ChangedList.codeObj = code_json_object;
+
+        CustomArrayAdapter cAdapter = new CustomArrayAdapter(getApplicationContext(), layout.eachproduct, codelist2);
+
+
+        ListView listview = (ListView) findViewById(id.product_LV);
+        listview.setAdapter(cAdapter);
+
+
+        TextView textview = (TextView) findViewById(id.productlist_intro);
+        String str2 = String.format("ของวันที่ %s | ทั้งหมด %s รายการ", codelist.get(0).checkschedule[0].date, codelist2.size());
+        textview.setText( str2 );
+//                textview.setText( getResources().getString( R.string.intro_product_list ) + " " + codelist.get(0).checkschedule[0].date + " เวลา " + codelist.get(0).checkschedule[0].time );
+
+        listview.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        SCANMODE.TYPE = SCANMODE.SCANMODE_LIST;
+                        ActiveProduct.setValue(codelist2.get(position));
+
+                        Intent intent = new Intent(c, CaptureActivity.class);
+                        startActivityForResult(intent, REQ_INNER_SCANNER);
+
+//                                IntentIntegrator integrator = new IntentIntegrator(c);
+//                                integrator.initiateScan();
+                    }
+                }
+        );
+
+        progressBar_product.setVisibility(View.GONE);
+    }
+
     private void updateCodelist(CodeObj<CodeObj.Code> codelist, CodeObj<CodeObj.Code> countlist){
         int max = codelist.codes.length;
+
         for(int i = 0; i < max; ++i){
             for(int x = 0; x < max; ++x) {
                 if (codelist.codes[i].code.equals(countlist.codes[x].code)) {
@@ -449,64 +474,7 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
 
 
-    public class CodeObj<Code>{
-        Code[] codes;
-        public ArrayList<CodeObj.Code> pl = null;
 
-        public void addtofirst(){
-            CodeObj.Code c = (CodeObj.Code) codes[0];
-            c.code = "8858667045108";
-        }
-
-        public ArrayList<CodeObj.Code> getArrayList(){
-            ArrayList<CodeObj.Code> list = new ArrayList<CodeObj.Code>();
-
-
-            for(int i = 0; i < codes.length; ++i){
-                CodeObj.Code _c = (CodeObj.Code) codes[i];
-                list.add(_c);
-            }
-
-
-            return list;
-        }
-
-        public class Time{
-            String time;
-            String date;
-            String quantity; // qunatity from admin count at that time
-            boolean isCorrect;
-        }
-
-        public class Code{
-            String code;
-            String title;
-            String quantity; // quantity from yesterday
-            String src;
-
-            Time[] checkschedule;
-
-
-
-
-            public boolean checkStock(String num, String date, String time){
-                Time t = (CodeObj.Time) checkschedule[0];
-                t.quantity = num;
-                t.time = time;
-                t.date = date;
-
-                if( quantity.equals(t.quantity) ){
-                    t.isCorrect = true;
-                }else{
-                    t.isCorrect = false;
-                }
-
-                return t.isCorrect;
-            }
-
-        }
-
-    }
 
 
 }
