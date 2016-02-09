@@ -71,6 +71,30 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
             csv_list = Utilities.ReadCSVFile( csvPath );
 
 
+            String _date = csv_list.get(0).checkschedule[0].date.replace("/", "_");
+            APPCONFIG.PREFERENCE_FILENAME = APPCONFIG.PACKAGENAME + ".count_" + _date;
+            String filename = APPCONFIG.PREFERENCE_FILENAME;
+            SharedPreferences prefObj = getSharedPreferences(filename, MODE_PRIVATE);
+            String content = prefObj.getString("content", "false");
+            if( content.equals("false") ){
+
+            }else{
+                Gson g = new Gson();
+                try {
+                    Type t = new TypeToken<CodeObj<CodeObj.Code>>(){}.getType();
+                    CodeObj<CodeObj.Code> list_from_save = g.fromJson(content, t);
+
+                    updateCodelist(Utilities.CodeObj, list_from_save);
+                    csv_list = Utilities.CodeObj.getArrayList();
+
+                }catch(Exception e){
+
+                }
+            }
+
+
+
+
             setAdapterToView(csv_list, Utilities.CodeObj);
 
 //            ListView LV = (ListView) findViewById(id.product_LV);
