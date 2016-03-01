@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,15 +23,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.balloonoffice.balloonapp.Adapter.Csv_Adapter;
-import com.balloonoffice.balloonapp.Model.*;
-import com.balloonoffice.balloonapp.Model.Csv_item_model;
+import com.balloonoffice.balloonapp.Model.CodeObj;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.koushikdutta.ion.Ion;
 
 import org.apache.http.NameValuePair;
@@ -42,12 +38,16 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.balloonoffice.balloonapp.R.*;
+import static com.balloonoffice.balloonapp.R.color;
+import static com.balloonoffice.balloonapp.R.drawable;
+import static com.balloonoffice.balloonapp.R.id;
+import static com.balloonoffice.balloonapp.R.layout;
+import static com.balloonoffice.balloonapp.R.string;
 
 public class ProductList extends ActionBarActivity implements PostTask.PostTaskInterface {
+    public static final int REQ_INNER_SCANNER = 50;
     private Activity c = this;
     private AlertDialog dialog;
-    public static final int REQ_INNER_SCANNER = 50;
     private ArrayList<CodeObj.Code> csv_list;
     private ProgressBar progressBar_product;
 
@@ -244,16 +244,90 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
         return super.onOptionsItemSelected(item);
     }
 
-    public class SendComplete<T>{
-        public boolean success;
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
 
         Intent i = new Intent(c, MainActivity.class);
         startActivity(i);
+    }
+
+    public void setAdapterToView(ArrayList<CodeObj.Code> codelist, CodeObj<CodeObj.Code> code_json_object) {
+        final ArrayList<CodeObj.Code> codelist2 = codelist;
+
+
+//                ChangedList.products = codelist;
+        ChangedList.codeObj = code_json_object;
+
+        CustomArrayAdapter cAdapter = new CustomArrayAdapter(getApplicationContext(), layout.eachproduct, codelist2);
+
+
+        ListView listview = (ListView) findViewById(id.product_LV);
+        listview.setAdapter(cAdapter);
+
+
+        TextView textview = (TextView) findViewById(id.productlist_intro);
+        String str2 = String.format("ของวันที่ %s | ทั้งหมด %s รายการ", codelist.get(0).checkschedule[0].date, codelist2.size());
+        textview.setText(str2);
+//                textview.setText( getResources().getString( R.string.intro_product_list ) + " " + codelist.get(0).checkschedule[0].date + " เวลา " + codelist.get(0).checkschedule[0].time );
+
+        listview.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        SCANMODE.TYPE = SCANMODE.SCANMODE_LIST;
+                        ActiveProduct.setValue(codelist2.get(position));
+
+                        Intent intent = new Intent(c, CaptureActivity.class);
+                        startActivityForResult(intent, REQ_INNER_SCANNER);
+
+//                                IntentIntegrator integrator = new IntentIntegrator(c);
+//                                integrator.initiateScan();
+                    }
+                }
+        );
+
+        progressBar_product.setVisibility(View.GONE);
+    }
+
+    private void updateCodelist(CodeObj<CodeObj.Code> codelist, CodeObj<CodeObj.Code> countlist) {
+        int max = codelist.codes.length;
+
+        for (int i = 0; i < max; ++i) {
+            for (int x = 0; x < max; ++x) {
+                if (codelist.codes[i].code.equals(countlist.codes[x].code)) {
+                    codelist.codes[i].checkschedule[0].quantity = countlist.codes[x].checkschedule[0].quantity;
+                    codelist.codes[i].checkschedule[0].time = countlist.codes[x].checkschedule[0].time;
+                    codelist.codes[i].checkschedule[0].date = countlist.codes[x].checkschedule[0].date;
+                    codelist.codes[i].checkschedule[0].isCorrect = countlist.codes[x].checkschedule[0].isCorrect;
+                }
+            }
+        }
+    }
+
+    public void callbarcode(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.btn_autoscan:
+                SCANMODE.TYPE = SCANMODE.SCANMODE_AUTO;
+                break;
+            case R.id.btn_viewproduct:
+                SCANMODE.TYPE = SCANMODE.SCANMODE_VIEW;
+                break;
+        }
+//        IntentIntegrator integrator = new IntentIntegrator(c);
+//        integrator.initiateScan();
+        Intent intent = new Intent(c, CaptureActivity.class);
+        startActivityForResult(intent, REQ_INNER_SCANNER);
+    }
+
+    public void reloadlist(View view) {
+        Intent i = new Intent(c, ProductList.class);
+        startActivity(i);
+    }
+
+    public class SendComplete<T> {
+        public boolean success;
     }
 
     public class CustomArrayAdapter extends ArrayAdapter<CodeObj.Code>{
@@ -266,15 +340,6 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
             this.values = values;
 
         }
-
-        public class Viewholder{
-            public TextView tcode;
-            public ImageView imgview;
-            public TextView history;
-            public TextView tcount;
-            public TextView tstock;
-        }
-
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -333,9 +398,15 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
 
 
         }
+
+        public class Viewholder {
+            public TextView tcode;
+            public ImageView imgview;
+            public TextView history;
+            public TextView tcount;
+            public TextView tstock;
+        }
     }
-
-
 
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
 
@@ -358,16 +429,15 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
         @Override
         protected void onPostExecute(String s) {
 
-
-
             progressBar_product = (ProgressBar) findViewById(id.progressBar_product);
             Button btn_reload = (Button) findViewById(id.btn_reload);
             String str = "{\"codes\":" + s.trim() + "}";
             str = str.replaceAll("(\r\n|\n)", "");
 
 
-            Type t = new TypeToken<CodeObj<CodeObj.Code>>(){}.getType();
-            JsonReader reader =new JsonReader(new StringReader( str ));
+            Type t = new TypeToken<CodeObj<CodeObj.Code>>() {
+            }.getType();
+            JsonReader reader = new JsonReader(new StringReader(str));
             reader.setLenient(true);
 
             CodeObj<CodeObj.Code> code_json_object = null;
@@ -384,7 +454,7 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
                 btn_reload.setVisibility(View.VISIBLE);
             }
 
-            if( code_json_object != null ) {
+            if (code_json_object != null && code_json_object.getArrayList().size() > 0) {
                 ArrayList<CodeObj.Code> codelist = code_json_object.getArrayList();
 
                 String _date = codelist.get(0).checkschedule[0].date.replace("/", "_");
@@ -392,9 +462,9 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
                 String filename = APPCONFIG.PREFERENCE_FILENAME;
                 SharedPreferences prefObj = getSharedPreferences(filename, MODE_PRIVATE);
                 String content = prefObj.getString("content", "false");
-                if( content.equals("false") ){
+                if (content.equals("false")) {
 
-                }else{
+                } else {
                     Gson g = new Gson();
                     try {
                         countlist_json_object = g.fromJson(content, t);
@@ -403,96 +473,22 @@ public class ProductList extends ActionBarActivity implements PostTask.PostTaskI
                         updateCodelist(code_json_object, countlist_json_object);
                         codelist = code_json_object.getArrayList();
 
-                    }catch(Exception e){
+                    } catch (Exception e) {
 
                     }
-                }
+                    }
 
 
                 setAdapterToView(codelist, code_json_object);
-            }
-
-        }
-
-    }
-
-
-
-
-    public void setAdapterToView( ArrayList<CodeObj.Code> codelist, CodeObj<CodeObj.Code> code_json_object){
-        final ArrayList<CodeObj.Code> codelist2 = codelist;
-
-
-//                ChangedList.products = codelist;
-        ChangedList.codeObj = code_json_object;
-
-        CustomArrayAdapter cAdapter = new CustomArrayAdapter(getApplicationContext(), layout.eachproduct, codelist2);
-
-
-        ListView listview = (ListView) findViewById(id.product_LV);
-        listview.setAdapter(cAdapter);
-
-
-        TextView textview = (TextView) findViewById(id.productlist_intro);
-        String str2 = String.format("ของวันที่ %s | ทั้งหมด %s รายการ", codelist.get(0).checkschedule[0].date, codelist2.size());
-        textview.setText( str2 );
-//                textview.setText( getResources().getString( R.string.intro_product_list ) + " " + codelist.get(0).checkschedule[0].date + " เวลา " + codelist.get(0).checkschedule[0].time );
-
-        listview.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        SCANMODE.TYPE = SCANMODE.SCANMODE_LIST;
-                        ActiveProduct.setValue(codelist2.get(position));
-
-                        Intent intent = new Intent(c, CaptureActivity.class);
-                        startActivityForResult(intent, REQ_INNER_SCANNER);
-
-//                                IntentIntegrator integrator = new IntentIntegrator(c);
-//                                integrator.initiateScan();
-                    }
+            } else {
+                Utilities.ToastAlert(c, ToastAlert.TYPE_JSON_ERROR);
                 }
-        );
 
-        progressBar_product.setVisibility(View.GONE);
-    }
 
-    private void updateCodelist(CodeObj<CodeObj.Code> codelist, CodeObj<CodeObj.Code> countlist){
-        int max = codelist.codes.length;
 
-        for(int i = 0; i < max; ++i){
-            for(int x = 0; x < max; ++x) {
-                if (codelist.codes[i].code.equals(countlist.codes[x].code)) {
-                    codelist.codes[i].checkschedule[0].quantity = countlist.codes[x].checkschedule[0].quantity;
-                    codelist.codes[i].checkschedule[0].time = countlist.codes[x].checkschedule[0].time;
-                    codelist.codes[i].checkschedule[0].date = countlist.codes[x].checkschedule[0].date;
-                    codelist.codes[i].checkschedule[0].isCorrect = countlist.codes[x].checkschedule[0].isCorrect;
-                }
-            }
+
         }
-    }
 
-    public void callbarcode(View view){
-        int id = view.getId();
-        switch(id){
-            case R.id.btn_autoscan:
-                SCANMODE.TYPE = SCANMODE.SCANMODE_AUTO;
-                break;
-            case R.id.btn_viewproduct:
-                SCANMODE.TYPE = SCANMODE.SCANMODE_VIEW;
-                break;
-        }
-//        IntentIntegrator integrator = new IntentIntegrator(c);
-//        integrator.initiateScan();
-        Intent intent = new Intent(c, CaptureActivity.class);
-        startActivityForResult(intent, REQ_INNER_SCANNER);
-    }
-
-
-
-    public void reloadlist(View view){
-        Intent i = new Intent(c, ProductList.class);
-        startActivity(i);
     }
 
 

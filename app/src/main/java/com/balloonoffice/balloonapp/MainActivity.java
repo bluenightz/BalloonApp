@@ -3,6 +3,7 @@ package com.balloonoffice.balloonapp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,12 +11,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,17 +28,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-
-import android.app.Fragment;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.balloonoffice.balloonapp.Model.Csv_item_model;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -42,22 +47,18 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements LoginDialog.LoginDialogInterface, PostTask.PostTaskInterface {
+    private final String LOGTAG = "AndroidFileBrowser";
+    private final int REQUEST_CODE_PICK_DIR = 1;
+    private final int REQUEST_CODE_PICK_FILE = 2;
     private Activity c = this;
     private int framelayout;
     private Fragment f = null;
     private LoginDialog loginDialog = null;
     private AppControl AC = null;
+    // private ArrayList<Csv_item_model> csv_list;
     private PostTask<User> postTask;
     private Menu _menu;
     private ProgressBar progressBar;
-    // private ArrayList<Csv_item_model> csv_list;
-
-
-    private final String LOGTAG = "AndroidFileBrowser";
-
-    private final int REQUEST_CODE_PICK_DIR = 1;
-    private final int REQUEST_CODE_PICK_FILE = 2;
-
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
@@ -99,28 +100,6 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
 
     }
 
-    public class User {
-
-        /*
-        {
-            "status": "Has Password but Login False",
-                    "name": "",
-                    "branch": "",
-                    "username": "",
-                    "branch_id": "",
-                    "type": "",
-                    "success": "False"
-        }
-        */
-
-        public String username; // admin_username
-        public String branch; // admin_branch
-        public String name; // admin_name
-        public String branch_id; // admin_branch_id
-        public boolean success; // admin_success
-        public String type;
-        public String status;
-    }
 
 
     @Override
@@ -185,11 +164,29 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
 
 
         setContentView(R.layout.activity_main);
-        // setTitle("");
+        progressBar = (ProgressBar) findViewById(R.id.progressBar_update);
 
 
+        setBtnBrowser4File();
+
+        checkProgressBar();
+
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(c);
+
+        setUserInfo(sh);
+
+        setAppVersion(sh);
+
+        setAppControl();
+
+        catchGmailFile();
+
+
+
+    }
+
+    private void setBtnBrowser4File() {
         final Activity activityForButton = this;
-
         final Button startBrowser4FileButton = (Button) findViewById(R.id.btn_load_from_mac5);
         startBrowser4FileButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -200,29 +197,25 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
                         activityForButton,
                         ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.class
                 );
-//        		fileExploreIntent.putExtra(
-//        				ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.startDirectoryParameter,
-//        				"/sdcard"
-//        				);
                 startActivityForResult(
                         fileExploreIntent,
                         REQUEST_CODE_PICK_FILE
                 );
             }//public void onClick(View v) {
         });
+    }
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar_update);
-
-        if( this.getIntent().getBooleanExtra("showProgess", false) ){
+    private void checkProgressBar() {
+        if (this.getIntent().getBooleanExtra("showProgess", false)) {
             progressBar.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             progressBar.setVisibility(View.GONE);
-            NotificationManager manager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             manager.cancel(0);
         }
+    }
 
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(c);
-
+    private void setUserInfo(SharedPreferences sh) {
         if (sh.getBoolean("admin_success", false)) {
             User latestuser = new User();
             latestuser.success = sh.getBoolean("admin_success", true);
@@ -235,16 +228,20 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
             UserInfo.replaceInfo(latestuser);
             Button btn = (Button) findViewById(R.id.btn_login);
             btn.setText(R.string.logout);
-        }else{
+        } else {
             Button btn = (Button) findViewById(R.id.btn_login);
             btn.setText(R.string.login);
         }
-//
-//
+    }
+
+    private void setAppVersion(SharedPreferences sh) {
         SharedPreferences.Editor edit = sh.edit();
         edit.putString("app_version", APPCONFIG.APPVERSION);
         edit.commit();
-//
+    }
+
+
+    private void setAppControl() {
         AC = new AppControl();
         AC.setActivity(c);
         AC.setOnCheckComplete(new AppControl.AppControlInterface() {
@@ -301,8 +298,106 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
             }
         });
         AC.checkUpdate(true);
+    }
 
 
+    private void catchGmailFile() {
+        Intent intent = getIntent();
+        InputStream is = null;
+        FileOutputStream os = null;
+        String fullPath = null;
+
+        try {
+            String action = intent.getAction();
+            if (!Intent.ACTION_VIEW.equals(action)) {
+                return;
+            }
+
+            Uri uri = intent.getData();
+            String scheme = uri.getScheme();
+            String name = null;
+
+            if (scheme.equals("file")) {
+                List<String> pathSegments = uri.getPathSegments();
+                if (pathSegments.size() > 0) {
+                    name = pathSegments.get(pathSegments.size() - 1);
+                }
+            } else if (scheme.equals("content")) {
+                Cursor cursor = getContentResolver().query(uri, new String[]{
+                        MediaStore.MediaColumns.DISPLAY_NAME
+                }, null, null, null);
+                cursor.moveToFirst();
+                int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                if (nameIndex >= 0) {
+                    name = cursor.getString(nameIndex);
+                }
+            } else {
+                return;
+            }
+
+            if (name == null) {
+                return;
+            }
+
+            int n = name.lastIndexOf(".");
+            String fileName, fileExt;
+
+            if (n == -1) {
+                return;
+            } else {
+                fileName = name.substring(0, n);
+                fileExt = name.substring(n);
+                if (!fileExt.equals(".csv")) {
+                    return;
+                }
+            }
+
+            File folder = new File(Environment.getExternalStorageDirectory() + "/" + APPCONFIG.PACKAGENAME);
+            if (!folder.exists()) {
+                folder.mkdir();
+            }
+
+            fullPath = folder.getAbsolutePath() + "/" + name;  /* create full path to where the file is to go, including name/ext */
+            ;
+            File file = new File(folder.getAbsolutePath(), name);
+
+            is = getContentResolver().openInputStream(uri);
+            os = new FileOutputStream(fullPath);
+
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = is.read(buffer)) > 0) {
+                os.write(buffer, 0, count);
+            }
+            os.close();
+            is.close();
+
+
+            SCANMODE.useMac5 = true;
+            SCANMODE.csvPath = fullPath;
+            closeFragment();
+            Intent intent2 = new Intent(this, ProductList.class);
+            startActivity(intent2);
+
+
+        } catch (Exception e) {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e1) {
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (Exception e1) {
+                }
+            }
+            if (fullPath != null) {
+                File f = new File(fullPath);
+                f.delete();
+            }
+        }
     }
 
 
@@ -563,4 +658,29 @@ public class MainActivity extends ActionBarActivity implements LoginDialog.Login
         super.onActivityResult(requestCode, resultCode, data);
 
     }
+
+
+    public class User {
+
+        /*
+        {
+            "status": "Has Password but Login False",
+                    "name": "",
+                    "branch": "",
+                    "username": "",
+                    "branch_id": "",
+                    "type": "",
+                    "success": "False"
+        }
+        */
+
+        public String username; // admin_username
+        public String branch; // admin_branch
+        public String name; // admin_name
+        public String branch_id; // admin_branch_id
+        public boolean success; // admin_success
+        public String type;
+        public String status;
+    }
+
 }
